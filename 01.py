@@ -1,51 +1,70 @@
+import requests
+import html
+import random
+
+class Question:
+    def __init__(self, question, options, correct):
+        self.question = question
+        self.options = options
+        self.correct = correct
+
+    def ask(self):
+        print(self.question)
+        for key, value in self.options.items():
+            print(f"{key}: {value}")
+        answer = input("Your answer: ").strip().upper()
+        return answer == self.correct
+
 class Quiz:
-    def __init__(self):
+    def __init__(self, questions):
+        self.questions = questions
         self.score = 0
 
-    def ask_question(self, question, options, correct_option):
-        print(question)
-        for key, value in options.items():
-            print(f"  {key} : {value}")
-        answer = input("Your answer: ").strip().upper()
-        if answer == correct_option:
-            self.score += 1
-            print("Correct!\n")
-        else:
-            print("Incorrect!\n")
+    def start(self):
+        for q in self.questions:
+            print("\n-------------------------")
+            if q.ask():
+                print("Correct!")
+                self.score += 1
+            else:
+                print("Incorrect.")
+        print(f"\nYour final score is: {self.score}/{len(self.questions)}")
 
-    def run(self):
-        self.ask_question(
-            "What does CPU stand for?",
-            {'A': 'Control Processing Unit', 'B': 'Central Processing Unit', 'C': 'Control Processed Unit', 'D': 'Central Processed Unit'},
-            'B'
-        )
-        self.ask_question(
-            "How many colours are in a rainbow?",
-            {'A': '6', 'B': '7', 'C': '8', 'D': '9'},
-            'B'
-        )
-        self.ask_question(
-            "Wavelength of colour red in nanometers?",
-            {'A': '650', 'B': '550', 'C': '750', 'D': '850'},
-            'A'
-        )
-        print(f"Your final score is: {self.score}/3\n")
+def fetch_questions_from_api(amount=5):
+    url = f"https://opentdb.com/api.php?amount={amount}&category=19&difficulty=medium&type=multiple"
+    response = requests.get(url)
+    data = response.json()
 
+    questions = []
+
+    for item in data['results']:
+        question_text = html.unescape(item['question'])
+        correct_answer = html.unescape(item['correct_answer'])
+        incorrect_answers = [html.unescape(ans) for ans in item['incorrect_answers']]
+        all_answers = incorrect_answers + [correct_answer]
+        random.shuffle(all_answers)
+
+        option_labels = ['A', 'B', 'C', 'D']
+        options = {label: ans for label, ans in zip(option_labels, all_answers)}
+        correct_label = next(label for label, ans in options.items() if ans == correct_answer)
+
+        questions.append(Question(question_text, options, correct_label))
+
+    return questions
 
 def main():
-    print("Welcome to my computer quiz!\n")
+    print("Welcome to the API-based quiz!")
 
     while True:
-        playing = input("Wanna play? (Y/N): ").strip().upper()
-        if playing == 'N':
-            print("Okay, maybe next time!")
+        play = input("Do you want to play? (Y/N): ").strip().upper()
+        if play == 'N':
+            print("Goodbye!")
             break
-        elif playing == 'Y':
-            quiz = Quiz()
-            quiz.run()
-            break
+        elif play == 'Y':
+            quiz = Quiz(fetch_questions_from_api(5))
+            quiz.start()
         else:
-            print("Invalid input. Please enter Y or N.\n")
+            print("Please enter Y or N.")
 
 if __name__ == "__main__":
     main()
