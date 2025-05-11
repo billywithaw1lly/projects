@@ -1,51 +1,51 @@
-print("Welcome to my computer quiz!")
+class Quiz:
+    def __init__(self):
+        self.score = 0
 
-play_on = True
+    def ask_question(self, question, options, correct_option):
+        print(question)
+        for key, value in options.items():
+            print(f"  {key} : {value}")
+        answer = input("Your answer: ").strip().upper()
+        if answer == correct_option:
+            self.score += 1
+            print("Correct!\n")
+        else:
+            print("Incorrect!\n")
 
-score = 0
-
-def questions():
-    global score
-
-    answer1 = input("What does CPU stands for ?\n A : control processing unit\n B : central progeccing unit\n C : control processed unit\n D : central processed unit \n").strip().upper()
-    if answer1 == 'B':
-        score +=1
-        print("correct\n")
-    else:
-        print("incorrect\n")
-
-    answer2 = input("how many colours are in a rainbow ?\n A : 6\n B : 7\n C : 8\n D : 9 \n").strip().upper()
-    if answer2 == 'B':
-        score +=1
-        print("correct\n")
-    else:
-        print("incorrect\n")
-
-    answer3 = input("wavelength of colour red in nanometer ?\n A : 650\n B : 550\n C : 750\n D : 850 \n").strip().upper()
-    if answer3 == 'A':
-        score +=1
-        print("correct\n")
-    else:
-        print("incorrect\n")
-
-    print(f"\nYour final score is: {score}/3\n")
-
-
-
+    def run(self):
+        self.ask_question(
+            "What does CPU stand for?",
+            {'A': 'Control Processing Unit', 'B': 'Central Processing Unit', 'C': 'Control Processed Unit', 'D': 'Central Processed Unit'},
+            'B'
+        )
+        self.ask_question(
+            "How many colours are in a rainbow?",
+            {'A': '6', 'B': '7', 'C': '8', 'D': '9'},
+            'B'
+        )
+        self.ask_question(
+            "Wavelength of colour red in nanometers?",
+            {'A': '650', 'B': '550', 'C': '750', 'D': '850'},
+            'A'
+        )
+        print(f"Your final score is: {self.score}/3\n")
 
 
-while play_on:
+def main():
+    print("Welcome to my computer quiz!\n")
+
     while True:
-        playing = input ("wanna play ? Y/N :: ").strip().upper() # handles spaces and converts to upper
+        playing = input("Wanna play? (Y/N): ").strip().upper()
         if playing == 'N':
-            print("okay maybe next time!\n")
-            play_on = False
-            quit() #quits the program
-
+            print("Okay, maybe next time!")
+            break
         elif playing == 'Y':
-            print("great!!\n")
-            questions()
+            quiz = Quiz()
+            quiz.run()
             break
         else:
+            print("Invalid input. Please enter Y or N.\n")
 
-            print("Invalid Input")
+if __name__ == "__main__":
+    main()
